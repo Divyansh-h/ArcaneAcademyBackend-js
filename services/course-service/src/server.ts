@@ -1,12 +1,15 @@
 import express from 'express';
 import { closePool } from './config/db';
+import { queryLogger } from './middlewares/queryLogger';
+import { CourseController } from './controllers/CourseController';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
+app.use(queryLogger);
 
-// Routes would go here (e.g. app.use('/courses', courseRoutes))
+app.get('/courses', CourseController.getCoursesWithStudents);
 app.get('/health', (req, res) => res.status(200).send('OK'));
 
 const server = app.listen(PORT, () => {
