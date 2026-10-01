@@ -53,4 +53,24 @@ export class CourseRepository {
     const { rows } = await pool.query<Course>(query, [title, description, teacherId]);
     return rows[0];
   }
+
+  /**
+   * Keyset pagination (Cursor pagination) to fix OFFSET slowdowns.
+   * Fetches courses ordered by ID strictly greater than the last seen ID.
+   */
+  static async getCoursesKeyset(lastId: string | null, limit: number = 10): Promise<Course[]> {
+    let query = 'SELECT * FROM courses';
+    const params: any[] = [];
+    
+    if (lastId) {
+      query += ' WHERE id > $1';
+      params.push(lastId);
+    }
+    
+    query += ` ORDER BY id ASC LIMIT $${params.length + 1}`;
+    params.push(limit);
+    
+    const { rows } = await pool.query<Course>(query, params);
+    return rows;
+  }
 }

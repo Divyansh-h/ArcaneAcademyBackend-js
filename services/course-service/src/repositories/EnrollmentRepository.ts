@@ -56,4 +56,29 @@ export class EnrollmentRepository {
     const { rowCount } = await pool.query(query, [studentId, courseId]);
     return rowCount !== null && rowCount > 0;
   }
+
+  /**
+   * Transactional batch enrollment.
+   * If any enrollment fails (e.g. unique constraint), the entire batch rolls back.
+   */
+  static async enrollMultipleWithTransaction(studentIds: string[], courseId: string): Promise<void> {
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN'); // Start Transaction
+      
+      for (const studentId of studentIds) {
+        await client.query(
+          'INSERT INTO enrollments (student_id, course_id) VALUES ($1, $2)', 
+          [studentId, courseId]
+        );
+      }
+      
+      await client.query('COMMIT'); // Commit if all succeed
+    } catch (err) {
+      await client.query('ROLLBACK'); // Rollback on any failure
+      throw err;
+    } finally {
+      client.release(); // Always release the client back to the pool
+    }
+  }
 }
