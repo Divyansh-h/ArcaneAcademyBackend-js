@@ -21,7 +21,7 @@ describe('Auth Service', () => {
             });
 
         expect(res.status).toBe(201);
-        expect(res.body).toHaveProperty('token');
+        expect(res.headers['set-cookie']).toBeDefined();
         expect(res.body.user).toHaveProperty('email', email);
     });
 
@@ -63,6 +63,6 @@ describe('Auth Service', () => {
             .send({ email, password });
 
         expect(res.status).toBe(200);
-        expect(res.body).toHaveProperty('token');
+        expect(res.headers['set-cookie']).toBeDefined();
     });
 });

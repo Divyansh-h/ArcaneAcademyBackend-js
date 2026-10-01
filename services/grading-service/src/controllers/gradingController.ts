@@ -143,11 +143,21 @@ export const downloadFile = async (req: Request, res: Response) => {
             if (submission) filePath = submission.gradedFileUrl || '';
         }
 
-        if (!filePath || !fs.existsSync(filePath)) {
+        if (!filePath) {
             return res.status(404).json({ message: 'File not found' });
         }
 
-        res.download(filePath);
+        const uploadsDir = path.resolve(__dirname, '../../uploads');
+        const resolvedPath = path.resolve(filePath);
+        if (!resolvedPath.startsWith(uploadsDir)) {
+            return res.status(403).json({ message: 'Forbidden: Invalid path' });
+        }
+
+        if (!fs.existsSync(resolvedPath)) {
+            return res.status(404).json({ message: 'File not found' });
+        }
+
+        res.download(resolvedPath);
     } catch (error) {
         res.status(500).json({ message: 'Internal server error' });
     }

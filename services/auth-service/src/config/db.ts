@@ -4,7 +4,11 @@ const databaseUrl = process.env.DATABASE_URL;
 
 export let sequelize: Sequelize;
 
-if (databaseUrl) {
+if (process.env.NODE_ENV === 'test') {
+    sequelize = new Sequelize('sqlite::memory:', {
+        logging: false,
+    });
+} else if (databaseUrl) {
     const url = new URL(databaseUrl);
     // Decode components to handle spaces/special characters
     const dbName = decodeURIComponent(url.pathname.replace(/^\//, ''));

@@ -8,8 +8,12 @@ import {
     gradeSubmission,
     downloadFile
 } from '../controllers/gradingController';
+import { currentUser, requireAuth } from '@arcane/shared';
 
 const router = express.Router();
+
+router.use(currentUser);
+router.use(requireAuth);
 
 // Assignments
 router.post('/assignments', upload.single('assignmentFile'), createAssignment);

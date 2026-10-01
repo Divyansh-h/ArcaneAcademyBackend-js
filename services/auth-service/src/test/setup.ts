@@ -9,6 +9,9 @@ beforeAll(async () => {
     // Wait for DB connection
     try {
         await sequelize.authenticate();
+        if (process.env.NODE_ENV === 'test') {
+            await sequelize.sync({ force: true });
+        }
         // Be careful with sync({ force: true }) in production/cloud DBs!
         // For this test with Neon, we probably shouldn't wipe it every time unless we have a separate test DB.
         // For now, we will just connect.
